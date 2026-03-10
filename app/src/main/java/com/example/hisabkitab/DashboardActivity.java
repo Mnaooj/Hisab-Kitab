@@ -30,14 +30,18 @@ public class DashboardActivity extends Activity {
         super.onCreate(b);
         setContentView(R.layout.dashboard);
 
-        // Initialize Firebase
+        // Firebase
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
+        if(currentUser == null){
+            finish();
+            return;
+        }
 
         currentUserUid = currentUser.getUid();
 
-        // Initialize views
+        // Views
         navBtnAccount = findViewById(R.id.navBtnAccount);
         transactionContainer = findViewById(R.id.transactionContainer);
         btnAddIncome = findViewById(R.id.btnAddIncome);
@@ -50,6 +54,9 @@ public class DashboardActivity extends Activity {
         tvSyncStatus = findViewById(R.id.tvSyncStatus);
 
         db = new DatabaseHandler(this);
+
+        // 🔄 AUTO SYNC
+        SyncManager.syncData(this);
 
         setUserName();
         loadDashboardData();
@@ -89,13 +96,21 @@ public class DashboardActivity extends Activity {
         double totalExpense = 0;
         boolean hasUnsynced = false;
 
-        // 🔹 Load Income
+        // INCOME
         Cursor incomeCursor = db.getIncome(currentUserUid);
+
         if (incomeCursor != null) {
+
             while (incomeCursor.moveToNext()) {
 
                 double amount = incomeCursor.getDouble(
                         incomeCursor.getColumnIndexOrThrow("amount"));
+
+                String title = incomeCursor.getString(
+                        incomeCursor.getColumnIndexOrThrow("title"));
+
+                String date = incomeCursor.getString(
+                        incomeCursor.getColumnIndexOrThrow("date"));
 
                 totalIncome += amount;
 
@@ -104,23 +119,27 @@ public class DashboardActivity extends Activity {
 
                 if (synced == 0) hasUnsynced = true;
 
-                addTransactionView(
-                        incomeCursor.getString(
-                                incomeCursor.getColumnIndexOrThrow("title")),
-                        amount,
-                        true
-                );
+                addTransactionView(title, amount, date, true);
             }
+
             incomeCursor.close();
         }
 
-        // 🔹 Load Expense
+        // EXPENSE
         Cursor expenseCursor = db.getExpenses(currentUserUid);
+
         if (expenseCursor != null) {
+
             while (expenseCursor.moveToNext()) {
 
                 double amount = expenseCursor.getDouble(
                         expenseCursor.getColumnIndexOrThrow("amount"));
+
+                String title = expenseCursor.getString(
+                        expenseCursor.getColumnIndexOrThrow("title"));
+
+                String date = expenseCursor.getString(
+                        expenseCursor.getColumnIndexOrThrow("date"));
 
                 totalExpense += amount;
 
@@ -129,13 +148,9 @@ public class DashboardActivity extends Activity {
 
                 if (synced == 0) hasUnsynced = true;
 
-                addTransactionView(
-                        expenseCursor.getString(
-                                expenseCursor.getColumnIndexOrThrow("title")),
-                        amount,
-                        false
-                );
+                addTransactionView(title, amount, date, false);
             }
+
             expenseCursor.close();
         }
 
@@ -146,30 +161,40 @@ public class DashboardActivity extends Activity {
         tvBalance.setText("Rs " + balance);
 
         if (hasUnsynced) {
+
             tvSyncStatus.setText("Not Synced");
             tvSyncStatus.setTextColor(Color.RED);
+
         } else {
+
             tvSyncStatus.setText("All Synced");
             tvSyncStatus.setTextColor(Color.WHITE);
         }
     }
 
-    private void addTransactionView(String title, double amount, boolean isIncome) {
+    private void addTransactionView(String title, double amount, String date, boolean isIncome) {
 
         LinearLayout row = new LinearLayout(this);
+
         row.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setPadding(0, 20, 0, 20);
+
+        row.setOrientation(LinearLayout.VERTICAL);
+        row.setPadding(0, 10, 0, 10);
+
+        LinearLayout rowTop = new LinearLayout(this);
+        rowTop.setOrientation(LinearLayout.HORIZONTAL);
 
         TextView tvTitle = new TextView(this);
         tvTitle.setLayoutParams(new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+
         tvTitle.setText(title);
         tvTitle.setTextSize(14);
 
         TextView tvAmount = new TextView(this);
+
         tvAmount.setTextSize(14);
         tvAmount.setTextColor(isIncome ?
                 Color.parseColor("#2E7D32") :
@@ -177,8 +202,17 @@ public class DashboardActivity extends Activity {
 
         tvAmount.setText((isIncome ? "+ Rs " : "- Rs ") + amount);
 
-        row.addView(tvTitle);
-        row.addView(tvAmount);
+        rowTop.addView(tvTitle);
+        rowTop.addView(tvAmount);
+
+        TextView tvDate = new TextView(this);
+
+        tvDate.setTextSize(12);
+        tvDate.setTextColor(Color.LTGRAY);
+        tvDate.setText("Date: " + date);
+
+        row.addView(rowTop);
+        row.addView(tvDate);
 
         transactionContainer.addView(row);
     }
@@ -186,6 +220,10 @@ public class DashboardActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // 🔄 SYNC AGAIN WHEN RETURNING
+        SyncManager.syncData(this);
+
         loadDashboardData();
     }
 }

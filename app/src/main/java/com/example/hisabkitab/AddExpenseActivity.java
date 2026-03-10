@@ -10,6 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.content.Context;
+
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,24 +53,45 @@ public class AddExpenseActivity extends AppCompatActivity {
         btnAddExpense.setOnClickListener(v -> saveExpense());
     }
 
+    // ✅ Internet check
+    private boolean isNetworkAvailable() {
+
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (cm != null) {
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
+        }
+
+        return false;
+    }
+
     private void setupDatePicker() {
+
         edtDate.setOnClickListener(v -> {
+
             Calendar calendar = Calendar.getInstance();
+
             new DatePickerDialog(this,
                     (view, year, month, day) ->
                             edtDate.setText(day + "/" + (month + 1) + "/" + year),
+
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)).show();
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            ).show();
         });
     }
 
     private void setupCategorySelection() {
 
         for (int i = 0; i < gridCategory.getChildCount(); i++) {
+
             View view = gridCategory.getChildAt(i);
 
             if (view instanceof TextView) {
+
                 view.setOnClickListener(v -> {
 
                     for (int j = 0; j < gridCategory.getChildCount(); j++) {
@@ -87,7 +112,6 @@ public class AddExpenseActivity extends AppCompatActivity {
             }
         }
     }
-
     private void saveExpense() {
 
         String amountStr = edtAmount.getText().toString().trim();
@@ -95,19 +119,10 @@ public class AddExpenseActivity extends AppCompatActivity {
         String description = edtDescription.getText().toString().trim();
         String date = edtDate.getText().toString().trim();
 
-        if (auth.getCurrentUser() == null) {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String userUid = auth.getCurrentUser().getUid();
-
         if (amountStr.isEmpty() || title.isEmpty() || date.isEmpty()) {
             Toast.makeText(this, "Please fill required fields", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        double amount = Double.parseDouble(amountStr);
 
         if (selectedCategory.equals("Other")) {
             selectedCategory = edtNewCategory.getText().toString().trim();
@@ -118,47 +133,32 @@ public class AddExpenseActivity extends AppCompatActivity {
             return;
         }
 
-        long timestamp = System.currentTimeMillis();
+        double amount = Double.parseDouble(amountStr);
 
-        // 1️⃣ Save to SQLite first (unsynced)
+        String userUid = "offline_user";
+
+        if (auth.getCurrentUser() != null) {
+            userUid = auth.getCurrentUser().getUid();
+        }
+
+        // 1️⃣ ALWAYS SAVE LOCALLY FIRST
         long localId = db.insertExpense(
-                "", // firestoreId empty initially
+                "",
                 userUid,
                 title,
                 amount,
                 selectedCategory,
                 description,
                 date,
-                0 // 0 = not synced
+                0
         );
 
-        // 2️⃣ Save to Firestore
-        Map<String, Object> expenseMap = new HashMap<>();
-        expenseMap.put("userId", userUid);
-        expenseMap.put("title", title);
-        expenseMap.put("amount", amount);
-        expenseMap.put("category", selectedCategory);
-        expenseMap.put("description", description);
-        expenseMap.put("date", date);
-        expenseMap.put("type", "expense");
-        expenseMap.put("timestamp", timestamp);
+        Toast.makeText(this, "Expense saved locally", Toast.LENGTH_SHORT).show();
 
-        firestore.collection("users")
-                .document(userUid)
-                .collection("transactions")
-                .add(expenseMap)
-                .addOnSuccessListener(documentReference -> {
+        // 2️⃣ TRY SYNC IF INTERNET EXISTS
+        SyncManager.syncData(this);
 
-                    String firestoreId = documentReference.getId();
-
-                    // 3️⃣ Update SQLite row as synced
-                    db.markExpenseAsSynced((int) localId, firestoreId);
-
-                    Toast.makeText(this, "Expense Added & Synced", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Saved locally. Will sync later.", Toast.LENGTH_LONG).show();
-                });
+        finish();
+    }
     }
 }
