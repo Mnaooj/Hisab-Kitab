@@ -150,7 +150,7 @@ public class DashboardActivity extends Activity {
             tvSyncStatus.setTextColor(Color.RED);
         } else {
             tvSyncStatus.setText("All Synced");
-            tvSyncStatus.setTextColor(Color.parseColor("#2E7D32"));
+            tvSyncStatus.setTextColor(Color.WHITE);
         }
     }
 

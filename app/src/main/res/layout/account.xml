@@ -52,6 +52,6 @@
         android:text="Delete Account"
         android:background="#FF0400"
         android:textColor="@android:color/white"
-        android:marginTop="20dp"/>
+        android:layout_marginTop="20dp" />
 
 </LinearLayout>
