@@ -50,18 +50,24 @@ public class RegisterActivity extends Activity {
     }
 
     private boolean isNetworkAvailable() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
         if (cm != null) {
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            return activeNetwork != null && activeNetwork.isConnected();
+            NetworkInfo network = cm.getActiveNetworkInfo();
+            return network != null && network.isConnected();
         }
+
         return false;
     }
 
     private void registerUser() {
 
         if (!isNetworkAvailable()) {
-            Toast.makeText(this, "No internet! Connect to Wi-Fi or mobile data.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,
+                    "No internet! Connect to internet first.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -69,66 +75,58 @@ public class RegisterActivity extends Activity {
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(name) ||
+                TextUtils.isEmpty(email) ||
+                TextUtils.isEmpty(password)) {
+
+            Toast.makeText(this,
+                    "All fields required",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
         btnCreateAccount.setEnabled(false);
 
-        // Check if email already exists
-        auth.fetchSignInMethodsForEmail(email)
+        auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
+
                     btnCreateAccount.setEnabled(true);
 
                     if (task.isSuccessful()) {
-                        boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
 
-                        if (!isNewUser) {
-                            Toast.makeText(this, "Email already exists! Try login.", Toast.LENGTH_LONG).show();
-                            return;
+                        FirebaseUser user = auth.getCurrentUser();
+
+                        if (user != null) {
+
+                            // Send verification email
+                            user.sendEmailVerification();
+
+                            // Save user to Firestore
+                            Map<String, Object> userMap = new HashMap<>();
+                            userMap.put("name", name);
+                            userMap.put("email", email);
+
+                            db.collection("users")
+                                    .document(user.getUid())
+                                    .set(userMap);
+
+                            // Save user locally for offline login
+                            dbHandler.insertUser(user.getUid(), email, password, name);
+
+                            Toast.makeText(this,
+                                    "Account created! Verify your email.",
+                                    Toast.LENGTH_LONG).show();
+
+                            startActivity(new Intent(this, VerifyEmailActivity.class));
+                            finish();
                         }
 
-                        // Create Firebase user
-                        auth.createUserWithEmailAndPassword(email, password)
-                                .addOnCompleteListener(regTask -> {
-                                    btnCreateAccount.setEnabled(true);
-
-                                    if (regTask.isSuccessful()) {
-                                        FirebaseUser user = auth.getCurrentUser();
-                                        if (user != null) {
-                                            // Send verification email
-                                            user.sendEmailVerification()
-                                                    .addOnSuccessListener(unused -> {
-                                                        // Store user in Firestore
-                                                        Map<String, Object> userMap = new HashMap<>();
-                                                        userMap.put("name", name);
-                                                        userMap.put("email", email);
-
-                                                        db.collection("users")
-                                                                .document(user.getUid())
-                                                                .set(userMap);
-
-                                                        // Store in SQLite
-                                                        dbHandler.insertUser(user.getUid(), email, password, name);
-
-                                                        // ✅ DO NOT sign out here
-                                                        // Go to VerifyEmailActivity
-                                                        startActivity(new Intent(RegisterActivity.this, VerifyEmailActivity.class));
-                                                        finish();
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Toast.makeText(this, "Failed to send verification email: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                                    });
-                                        }
-
-                                    } else {
-                                        Toast.makeText(this, "Registration failed: " + regTask.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                    }
-                                });
-
                     } else {
-                        Toast.makeText(this, "Error checking email: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+
+                        Toast.makeText(this,
+                                "Registration failed: " +
+                                        task.getException().getMessage(),
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
