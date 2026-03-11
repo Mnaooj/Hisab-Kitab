@@ -223,73 +223,42 @@
                 android:orientation="horizontal">
 
 
-
                 <Button
-
+                    android:id="@+id/btnFilterAll"
                     android:layout_width="112dp"
-
                     android:layout_height="36dp"
-
                     android:background="@drawable/filter_selected"
-
                     android:paddingHorizontal="18dp"
-
                     android:text="All"
-
                     android:textColor="#FFFFFF"
-
                     android:textSize="14sp" />
 
-
-
                 <Space
-
                     android:layout_width="12dp"
-
                     android:layout_height="wrap_content" />
 
-
-
                 <Button
-
+                    android:id="@+id/btnFilterIncome"
                     android:layout_width="112dp"
-
                     android:layout_height="36dp"
-
                     android:background="@drawable/filter_unselected"
-
                     android:paddingHorizontal="18dp"
-
                     android:text="Income"
-
                     android:textColor="#ffffff"
-
                     android:textSize="14sp" />
 
-
-
                 <Space
-
                     android:layout_width="12dp"
-
                     android:layout_height="wrap_content" />
 
-
-
                 <Button
-
+                    android:id="@+id/btnFilterExpense"
                     android:layout_width="112dp"
-
                     android:layout_height="36dp"
-
                     android:background="@drawable/filter_unselected"
-
                     android:paddingHorizontal="18dp"
-
                     android:text="Expense"
-
                     android:textColor="#ffffff"
-
                     android:textSize="14sp" />
 
 
@@ -410,7 +379,7 @@
 
                 android:src="@android:drawable/ic_menu_sort_by_size"
 
-                android:tint="#888888"/>
+                android:tint="#1F1F1F"/>
 
 
 
@@ -420,7 +389,7 @@
 
                 android:textSize="12sp"
 
-                android:textColor="#888888"
+                android:textColor="#1F1F1F"
 
                 android:layout_width="wrap_content"
 
@@ -443,12 +412,12 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@android:drawable/ic_menu_myplaces"
-                android:tint="#888888"/>
+                android:tint="#1F1F1F"/>
 
             <TextView
                 android:text="Account"
                 android:textSize="12sp"
-                android:textColor="#888888"
+                android:textColor="#1F1F1F"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
