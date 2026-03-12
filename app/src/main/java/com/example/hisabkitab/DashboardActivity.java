@@ -304,7 +304,7 @@ public class DashboardActivity extends Activity {
 
         tvTitle.setText(title);
         tvTitle.setTextSize(18);
-        tvTitle.setTextColor(Color.WHITE);
+        tvTitle.setTextColor(Color.BLACK);
 
         TextView tvAmount = new TextView(this);
         tvAmount.setTextSize(18);
@@ -320,7 +320,7 @@ public class DashboardActivity extends Activity {
 
         TextView tvDate = new TextView(this);
         tvDate.setTextSize(15);
-        tvDate.setTextColor(Color.LTGRAY);
+        tvDate.setTextColor(Color.DKGRAY);
         tvDate.setText("Date: " + date);
 
         row.addView(rowTop);
