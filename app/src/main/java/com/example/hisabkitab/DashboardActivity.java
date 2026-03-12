@@ -7,6 +7,7 @@ import android.widget.*;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.view.ViewGroup;
+import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -327,6 +328,12 @@ public class DashboardActivity extends Activity {
         row.addView(tvDate);
 
         transactionContainer.addView(row);
+        View divider = new View(this);
+        divider.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        divider.setBackgroundColor(Color.parseColor("#D3D3D3"));
+
+        transactionContainer.addView(divider);
     }
 
     @Override
