@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class DashboardActivity extends Activity {
@@ -27,6 +28,8 @@ public class DashboardActivity extends Activity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     String currentUserUid;
+
+    SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle b) {
@@ -122,6 +125,8 @@ public class DashboardActivity extends Activity {
                 selected == 2 ? R.drawable.filter_selected : R.drawable.filter_unselected);
     }
 
+    // ---------- LOAD ALL TRANSACTIONS ----------
+
     private void loadAllTransactions() {
 
         transactionContainer.removeAllViews();
@@ -172,8 +177,7 @@ public class DashboardActivity extends Activity {
             expenseCursor.close();
         }
 
-        // Sort by newest date
-        Collections.sort(allTransactions, (a, b) -> b.date.compareTo(a.date));
+        sortTransactions(allTransactions);
 
         for (TransactionItem tx : allTransactions) {
 
@@ -194,6 +198,8 @@ public class DashboardActivity extends Activity {
             tvSyncStatus.setTextColor(Color.WHITE);
         }
     }
+
+    // ---------- INCOME FILTER ----------
 
     private void loadIncomeOnly() {
 
@@ -217,12 +223,14 @@ public class DashboardActivity extends Activity {
             cursor.close();
         }
 
-        Collections.sort(list, (a, b) -> b.date.compareTo(a.date));
+        sortTransactions(list);
 
         for (TransactionItem tx : list) {
             addTransactionView(tx.title, tx.amount, tx.date, true);
         }
     }
+
+    // ---------- EXPENSE FILTER ----------
 
     private void loadExpenseOnly() {
 
@@ -246,12 +254,34 @@ public class DashboardActivity extends Activity {
             cursor.close();
         }
 
-        Collections.sort(list, (a, b) -> b.date.compareTo(a.date));
+        sortTransactions(list);
 
         for (TransactionItem tx : list) {
             addTransactionView(tx.title, tx.amount, tx.date, false);
         }
     }
+
+    // ---------- SORTING METHOD ----------
+
+    private void sortTransactions(List<TransactionItem> list) {
+
+        Collections.sort(list, (a, b) -> {
+
+            try {
+
+                Date d1 = sdf.parse(a.date);
+                Date d2 = sdf.parse(b.date);
+
+                return d2.compareTo(d1);
+
+            } catch (Exception e) {
+
+                return 0;
+            }
+        });
+    }
+
+    // ---------- UI CREATION ----------
 
     private void addTransactionView(String title, double amount, String date, boolean isIncome) {
 
@@ -261,7 +291,7 @@ public class DashboardActivity extends Activity {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
         row.setOrientation(LinearLayout.VERTICAL);
-        row.setPadding(0, 20, 0, 20);
+        row.setPadding(0, 24, 0, 24);
 
         LinearLayout rowTop = new LinearLayout(this);
         rowTop.setOrientation(LinearLayout.HORIZONTAL);
@@ -289,9 +319,9 @@ public class DashboardActivity extends Activity {
         rowTop.addView(tvAmount);
 
         TextView tvDate = new TextView(this);
-        tvDate.setTextSize(14);
+        tvDate.setTextSize(15);
         tvDate.setTextColor(Color.LTGRAY);
-        tvDate.setText(date);
+        tvDate.setText("Date: " + date);
 
         row.addView(rowTop);
         row.addView(tvDate);
