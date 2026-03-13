@@ -119,7 +119,7 @@ public class StatementActivity extends AppCompatActivity {
             double amount = income.getDouble(income.getColumnIndexOrThrow("amount"));
             String date = income.getString(income.getColumnIndexOrThrow("date"));
 
-            transactions.add(new TransactionItem(title,category,amount,date,true));
+            transactions.add(new TransactionItem(title, amount, date, true, 0, category));
         }
 
         Cursor expense = db.getExpenses(userUid);
@@ -131,7 +131,7 @@ public class StatementActivity extends AppCompatActivity {
             double amount = expense.getDouble(expense.getColumnIndexOrThrow("amount"));
             String date = expense.getString(expense.getColumnIndexOrThrow("date"));
 
-            transactions.add(new TransactionItem(title,category,amount,date,false));
+            transactions.add(new TransactionItem(title, amount, date, false, 0, category));
         }
 
         adapter.notifyDataSetChanged();

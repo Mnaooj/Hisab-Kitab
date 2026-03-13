@@ -17,7 +17,7 @@ import java.util.*;
 
 public class DashboardActivity extends Activity {
 
-    LinearLayout navBtnAccount, transactionContainer;
+    LinearLayout navBtnStatement,navBtnAccount, transactionContainer;
 
     Button btnAddIncome, btnAddExpense;
     Button btnFilterAll, btnFilterIncome, btnFilterExpense;
@@ -48,6 +48,7 @@ public class DashboardActivity extends Activity {
 
         currentUserUid = currentUser.getUid();
 
+        navBtnStatement = findViewById(R.id.navBtnStatement);
         navBtnAccount = findViewById(R.id.navBtnAccount);
         transactionContainer = findViewById(R.id.transactionContainer);
 
@@ -70,6 +71,7 @@ public class DashboardActivity extends Activity {
 
         setUserName();
         loadAllTransactions();
+        navBtnStatement.setOnClickListener(v -> startActivity(new Intent(this, StatementActivity.class)));
 
         navBtnAccount.setOnClickListener(v ->
                 startActivity(new Intent(this, AccountActivity.class)));

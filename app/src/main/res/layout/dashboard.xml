@@ -312,7 +312,7 @@
         <!-- STATEMENT -->
 
         <LinearLayout
-
+            android:id="@+id/navBtnStatement"
             android:layout_width="0dp"
 
             android:layout_weight="1"

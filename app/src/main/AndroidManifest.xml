@@ -26,6 +26,7 @@
         <activity android:name=".AddIncomeActivity"/>
         <activity android:name=".AddExpenseActivity"/>
         <activity android:name=".VerifyEmailActivity"/>
+        <activity android:name=".StatementActivity"/>
     </application>
-    <uses-permission android:name="android.permission.INTERNET"/>
+<!--    <uses-permission android:name="android.permission.INTERNET"/>-->
 </manifest>  
