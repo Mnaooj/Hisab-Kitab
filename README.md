@@ -20,7 +20,7 @@ HIsabKitab stores financial data locally on your device using SQLite and provide
 - XML
 - MPAndroidChart
 
-## 🧠 Algorithms Used 
+## 🧠 Algorithms Used  
 
 - Aggregation Algorithm 
 - Trend Analysis
