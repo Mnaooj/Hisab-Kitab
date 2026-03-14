@@ -12,7 +12,7 @@ An Android Expense Tracker App built using Java.
 - Java
 - Android Studio
 - Firebase
-- SQLite(If Used)
+- SQLite
 
 ## Algorithms Used 
 
