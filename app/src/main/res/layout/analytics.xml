@@ -40,41 +40,39 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="12dp"
                     android:orientation="horizontal"
-                    android:layout_marginTop="12dp">
+                    android:background="#F0F0F0"
+                    android:padding="4dp"
+                    android:gravity="center">
 
                     <Button
                         android:id="@+id/btnIncome"
-                        android:text="Income"
-                        android:textAllCaps="false"
-                        android:background="@android:color/transparent"
-                        android:textColor="#2E7D32"
-                        android:textStyle="bold"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="40dp"/>
+                        android:layout_height="match_parent"
+                        android:text="Income"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/toggle_selected"/>
 
                     <Button
                         android:id="@+id/btnExpense"
-                        android:text="Expense"
-                        android:textAllCaps="false"
-                        android:background="@android:color/transparent"
-                        android:textColor="#777777"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="40dp"/>
+                        android:layout_height="match_parent"
+                        android:text="Expense"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="#444444"
+                        android:background="@drawable/toggle_unselected"/>
 
                 </LinearLayout>
 
                 <!-- UNDERLINE INDICATOR -->
 
-                <View
-                    android:id="@+id/toggleIndicator"
-                    android:layout_width="50dp"
-                    android:layout_height="3dp"
-                    android:background="#2E7D32"
-                    android:layout_marginTop="2dp"/>
 
                 <!-- PIE CHART -->
 
