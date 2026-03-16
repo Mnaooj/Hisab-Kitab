@@ -70,7 +70,6 @@ public class AnalyticsActivity extends AppCompatActivity {
             btnExpense.setBackgroundResource(R.drawable.toggle_unselected);
             btnExpense.setTextColor(getResources().getColor(android.R.color.black));
         });
-
         btnExpense.setOnClickListener(v -> {
 
             showIncome = false;
@@ -82,7 +81,6 @@ public class AnalyticsActivity extends AppCompatActivity {
             btnIncome.setBackgroundResource(R.drawable.toggle_unselected);
             btnIncome.setTextColor(getResources().getColor(android.R.color.black));
         });
-
         loadPieChart();
         loadBarChart();
         calculatePrediction();
