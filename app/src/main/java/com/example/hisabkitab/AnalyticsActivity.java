@@ -75,7 +75,6 @@ public class AnalyticsActivity extends AppCompatActivity {
 
             showIncome = false;
             loadPieChart();
-
             // UI change
             btnExpense.setBackgroundResource(R.drawable.toggle_selected);
             btnExpense.setTextColor(getResources().getColor(android.R.color.white));
