@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.view.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,6 +30,7 @@ public class AnalyticsActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     String userUid;
+    View incomeIndicator, expenseIndicator;
 
     boolean showIncome = false;
 
@@ -44,7 +46,8 @@ public class AnalyticsActivity extends AppCompatActivity {
             finish(); // exit if user not logged in
             return;
         }
-
+        incomeIndicator = findViewById(R.id.incomeIndicator);
+        expenseIndicator = findViewById(R.id.expenseIndicator);
         userUid = currentUser.getUid(); // correct UID
 
         pieChart = findViewById(R.id.pieChart);

@@ -36,39 +36,32 @@
                     android:layout_height="wrap_content"/>
 
                 <!-- TOGGLE BUTTON -->
-
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:background="#F0F0F0"
-                    android:padding="4dp"
-                    android:gravity="center">
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/btnIncome"
+                        android:text="Income"
+                        android:background="@android:color/transparent"
+                        android:textAllCaps="false"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:text="Income"
-                        android:textAllCaps="false"
-                        android:textStyle="bold"
-                        android:textColor="#FFFFFF"
-                        android:background="@drawable/toggle_selected"/>
+                        android:layout_height="match_parent"/>
 
                     <Button
                         android:id="@+id/btnExpense"
+                        android:text="Expense"
+                        android:background="@android:color/transparent"
+                        android:textAllCaps="false"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:text="Expense"
-                        android:textAllCaps="false"
-                        android:textStyle="bold"
-                        android:textColor="#444444"
-                        android:background="@drawable/toggle_unselected"/>
+                        android:layout_height="match_parent"/>
 
                 </LinearLayout>
+
+
 
                 <!-- UNDERLINE INDICATOR -->
 
