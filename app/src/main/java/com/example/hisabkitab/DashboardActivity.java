@@ -3,6 +3,10 @@ package com.example.hisabkitab;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.SharedPreferences;
+
 import android.widget.*;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -17,7 +21,7 @@ import java.util.*;
 
 public class DashboardActivity extends Activity {
 
-    LinearLayout navBtnAnalytics, navBtnStatement,navBtnAccount, transactionContainer;
+    LinearLayout navBtnAnalytics, navBtnStatement, navBtnAccount, transactionContainer;
 
     Button btnAddIncome, btnAddExpense;
     Button btnFilterAll, btnFilterIncome, btnFilterExpense;
@@ -47,6 +51,7 @@ public class DashboardActivity extends Activity {
         }
 
         currentUserUid = currentUser.getUid();
+
         navBtnAnalytics = findViewById(R.id.navBtnAnalytics);
         navBtnStatement = findViewById(R.id.navBtnStatement);
         navBtnAccount = findViewById(R.id.navBtnAccount);
@@ -70,10 +75,21 @@ public class DashboardActivity extends Activity {
         SyncManager.syncData(this);
 
         setUserName();
+
+        // 🔔 NOTIFICATION SETUP (ADDED)
+        SharedPreferences prefs = getSharedPreferences("app", MODE_PRIVATE);
+        boolean isScheduled = prefs.getBoolean("notification_set", false);
+
+        if (!isScheduled) {
+            scheduleNotification();
+            prefs.edit().putBoolean("notification_set", true).apply();
+        }
+
         loadAllTransactions();
 
         navBtnStatement.setOnClickListener(v ->
                 startActivity(new Intent(this, StatementActivity.class)));
+
         navBtnAnalytics.setOnClickListener(v ->
                 startActivity(new Intent(this, AnalyticsActivity.class)));
 
@@ -100,14 +116,9 @@ public class DashboardActivity extends Activity {
             setFilterUI(2);
             loadExpenseOnly();
         });
-        SharedPreferences prefs = getSharedPreferences("app", MODE_PRIVATE);
-        boolean isScheduled = prefs.getBoolean("notification_set", false);
-
-        if (!isScheduled) {
-            scheduleNotification();
-            prefs.edit().putBoolean("notification_set", true).apply();
-        }
     }
+
+    // 🔔 NOTIFICATION METHOD (ADDED)
     private void scheduleNotification() {
 
         Intent intent = new Intent(this, ReminderReceiver.class);
@@ -231,7 +242,6 @@ public class DashboardActivity extends Activity {
         sortTransactions(allTransactions);
 
         for (TransactionItem tx : allTransactions) {
-
             addTransactionView(tx.title, tx.amount, tx.date, tx.isIncome);
         }
 
@@ -321,14 +331,10 @@ public class DashboardActivity extends Activity {
         Collections.sort(list, (a, b) -> {
 
             try {
-
                 Date d1 = sdf.parse(a.date);
                 Date d2 = sdf.parse(b.date);
-
                 return d2.compareTo(d1);
-
             } catch (Exception e) {
-
                 return 0;
             }
         });
@@ -395,7 +401,6 @@ public class DashboardActivity extends Activity {
         super.onResume();
 
         SyncManager.syncData(this);
-
         loadAllTransactions();
     }
 }
