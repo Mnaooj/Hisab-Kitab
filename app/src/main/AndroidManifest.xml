@@ -19,6 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".DashboardActivity"/>
@@ -28,8 +29,9 @@
         <activity android:name=".VerifyEmailActivity"/>
         <activity android:name=".StatementActivity"/>
         <activity android:name=".AnalyticsActivity"/>
+        <receiver android:name=".ReminderReceiver"/>
     </application>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
- <uses-permission android:name="android.permission.INTERNET"/>
-    <receiver android:name=".ReminderReceiver"/>
+        <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+        <uses-permission android:name="android.permission.INTERNET"/>
+
 </manifest>  
