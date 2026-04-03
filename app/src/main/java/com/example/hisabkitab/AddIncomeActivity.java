@@ -48,15 +48,21 @@ public class AddIncomeActivity extends AppCompatActivity {
     private void setupDatePicker() {
         edtDate.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
-            new DatePickerDialog(this,
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                     (view, year, month, day) ->
                             edtDate.setText(day + "/" + (month + 1) + "/" + year),
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)).show();
+                    calendar.get(Calendar.DAY_OF_MONTH)
+            );
+
+            // 🚫 Disable future dates (tomorrow and beyond)
+            datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+            datePickerDialog.show();
         });
     }
-
     // CATEGORY SELECTOR
     private void setupCategorySelection() {
         for (int i = 0; i < gridCategory.getChildCount(); i++) {

@@ -68,19 +68,21 @@ public class AddExpenseActivity extends AppCompatActivity {
     }
 
     private void setupDatePicker() {
-
         edtDate.setOnClickListener(v -> {
-
             Calendar calendar = Calendar.getInstance();
 
-            new DatePickerDialog(this,
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                     (view, year, month, day) ->
                             edtDate.setText(day + "/" + (month + 1) + "/" + year),
-
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
                     calendar.get(Calendar.DAY_OF_MONTH)
-            ).show();
+            );
+
+            // 🚫 Disable future dates (tomorrow and beyond)
+            datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+            datePickerDialog.show();
         });
     }
 
