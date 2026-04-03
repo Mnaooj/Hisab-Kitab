@@ -1,17 +1,16 @@
 package com.example.hisabkitab;
 
+import android.app.*;
+import android.content.*;
+import android.os.Build;
 import android.os.Bundle;
-import android.app.Activity;
-import android.content.Intent;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.SharedPreferences;
-
 import android.widget.*;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.view.ViewGroup;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,7 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class DashboardActivity extends Activity {
+public class DashboardActivity extends AppCompatActivity {
 
     LinearLayout navBtnAnalytics, navBtnStatement, navBtnAccount, transactionContainer;
 
@@ -37,11 +36,11 @@ public class DashboardActivity extends Activity {
     SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
 
     @Override
-    protected void onCreate(Bundle b) {
-
-        super.onCreate(b);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
 
+        // Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
@@ -52,6 +51,7 @@ public class DashboardActivity extends Activity {
 
         currentUserUid = currentUser.getUid();
 
+        // Bind UI
         navBtnAnalytics = findViewById(R.id.navBtnAnalytics);
         navBtnStatement = findViewById(R.id.navBtnStatement);
         navBtnAccount = findViewById(R.id.navBtnAccount);
@@ -72,21 +72,22 @@ public class DashboardActivity extends Activity {
 
         db = new DatabaseHandler(this);
 
+        // Sync
         SyncManager.syncData(this);
 
         setUserName();
 
-        // 🔔 NOTIFICATION SETUP (ADDED)
+        // 🔔 NOTIFICATION SETUP
         SharedPreferences prefs = getSharedPreferences("app", MODE_PRIVATE);
         boolean isScheduled = prefs.getBoolean("notification_set", false);
-
         if (!isScheduled) {
-            scheduleNotification();
+            scheduleDailyNotification();
             prefs.edit().putBoolean("notification_set", true).apply();
         }
 
         loadAllTransactions();
 
+        // Navigation
         navBtnStatement.setOnClickListener(v ->
                 startActivity(new Intent(this, StatementActivity.class)));
 
@@ -96,12 +97,14 @@ public class DashboardActivity extends Activity {
         navBtnAccount.setOnClickListener(v ->
                 startActivity(new Intent(this, AccountActivity.class)));
 
+        // Add transaction
         btnAddIncome.setOnClickListener(v ->
                 startActivity(new Intent(this, AddIncomeActivity.class)));
 
         btnAddExpense.setOnClickListener(v ->
                 startActivity(new Intent(this, AddExpenseActivity.class)));
 
+        // Filters
         btnFilterAll.setOnClickListener(v -> {
             setFilterUI(0);
             loadAllTransactions();
@@ -118,15 +121,11 @@ public class DashboardActivity extends Activity {
         });
     }
 
-    // 🔔 NOTIFICATION METHOD (ADDED)
-    private void scheduleNotification() {
-
+    // ==================== NOTIFICATION ====================
+    private void scheduleDailyNotification() {
         Intent intent = new Intent(this, ReminderReceiver.class);
-
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this,
-                0,
-                intent,
+                this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
@@ -141,48 +140,51 @@ public class DashboardActivity extends Activity {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
-                pendingIntent
-        );
+        // Use setExactAndAllowWhileIdle for precise daily alarm
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    pendingIntent
+            );
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    pendingIntent
+            );
+        } else {
+            alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    pendingIntent
+            );
+        }
     }
 
+    // ==================== USER NAME ====================
     private void setUserName() {
-
-        if (currentUser.getDisplayName() != null &&
-                !currentUser.getDisplayName().isEmpty()) {
-
+        if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
             tvHelloName.setText("Hello, " + currentUser.getDisplayName());
-
         } else if (currentUser.getEmail() != null) {
-
             String emailName = currentUser.getEmail().split("@")[0];
             tvHelloName.setText("Hello, " + emailName);
-
         } else {
-
             tvHelloName.setText("Hello, User");
         }
     }
 
     private void setFilterUI(int selected) {
-
         btnFilterAll.setBackgroundResource(
                 selected == 0 ? R.drawable.filter_selected : R.drawable.filter_unselected);
-
         btnFilterIncome.setBackgroundResource(
                 selected == 1 ? R.drawable.filter_selected : R.drawable.filter_unselected);
-
         btnFilterExpense.setBackgroundResource(
                 selected == 2 ? R.drawable.filter_selected : R.drawable.filter_unselected);
     }
 
-    // ================= LOAD ALL =================
-
+    // ==================== LOAD TRANSACTIONS ====================
     private void loadAllTransactions() {
-
         transactionContainer.removeAllViews();
 
         List<TransactionItem> allTransactions = new ArrayList<>();
@@ -192,11 +194,8 @@ public class DashboardActivity extends Activity {
         boolean hasUnsynced = false;
 
         Cursor incomeCursor = db.getIncome(currentUserUid);
-
         if (incomeCursor != null) {
-
             while (incomeCursor.moveToNext()) {
-
                 String title = incomeCursor.getString(incomeCursor.getColumnIndexOrThrow("title"));
                 double amount = incomeCursor.getDouble(incomeCursor.getColumnIndexOrThrow("amount"));
                 String date = incomeCursor.getString(incomeCursor.getColumnIndexOrThrow("date"));
@@ -204,23 +203,16 @@ public class DashboardActivity extends Activity {
                 String category = incomeCursor.getString(incomeCursor.getColumnIndexOrThrow("category"));
 
                 totalIncome += amount;
-
                 if (synced == 0) hasUnsynced = true;
 
-                allTransactions.add(
-                        new TransactionItem(title, amount, date, true, synced, category)
-                );
+                allTransactions.add(new TransactionItem(title, amount, date, true, synced, category));
             }
-
             incomeCursor.close();
         }
 
         Cursor expenseCursor = db.getExpenses(currentUserUid);
-
         if (expenseCursor != null) {
-
             while (expenseCursor.moveToNext()) {
-
                 String title = expenseCursor.getString(expenseCursor.getColumnIndexOrThrow("title"));
                 double amount = expenseCursor.getDouble(expenseCursor.getColumnIndexOrThrow("amount"));
                 String date = expenseCursor.getString(expenseCursor.getColumnIndexOrThrow("date"));
@@ -228,14 +220,10 @@ public class DashboardActivity extends Activity {
                 String category = expenseCursor.getString(expenseCursor.getColumnIndexOrThrow("category"));
 
                 totalExpense += amount;
-
                 if (synced == 0) hasUnsynced = true;
 
-                allTransactions.add(
-                        new TransactionItem(title, amount, date, false, synced, category)
-                );
+                allTransactions.add(new TransactionItem(title, amount, date, false, synced, category));
             }
-
             expenseCursor.close();
         }
 
@@ -260,20 +248,13 @@ public class DashboardActivity extends Activity {
         }
     }
 
-    // ================= INCOME FILTER =================
-
     private void loadIncomeOnly() {
-
         transactionContainer.removeAllViews();
-
         List<TransactionItem> list = new ArrayList<>();
 
         Cursor cursor = db.getIncome(currentUserUid);
-
         if (cursor != null) {
-
             while (cursor.moveToNext()) {
-
                 String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
                 double amount = cursor.getDouble(cursor.getColumnIndexOrThrow("amount"));
                 String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
@@ -281,7 +262,6 @@ public class DashboardActivity extends Activity {
 
                 list.add(new TransactionItem(title, amount, date, true, 1, category));
             }
-
             cursor.close();
         }
 
@@ -292,20 +272,13 @@ public class DashboardActivity extends Activity {
         }
     }
 
-    // ================= EXPENSE FILTER =================
-
     private void loadExpenseOnly() {
-
         transactionContainer.removeAllViews();
-
         List<TransactionItem> list = new ArrayList<>();
 
         Cursor cursor = db.getExpenses(currentUserUid);
-
         if (cursor != null) {
-
             while (cursor.moveToNext()) {
-
                 String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
                 double amount = cursor.getDouble(cursor.getColumnIndexOrThrow("amount"));
                 String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
@@ -313,7 +286,6 @@ public class DashboardActivity extends Activity {
 
                 list.add(new TransactionItem(title, amount, date, false, 1, category));
             }
-
             cursor.close();
         }
 
@@ -324,12 +296,8 @@ public class DashboardActivity extends Activity {
         }
     }
 
-    // ================= SORT =================
-
     private void sortTransactions(List<TransactionItem> list) {
-
         Collections.sort(list, (a, b) -> {
-
             try {
                 Date d1 = sdf.parse(a.date);
                 Date d2 = sdf.parse(b.date);
@@ -340,15 +308,11 @@ public class DashboardActivity extends Activity {
         });
     }
 
-    // ================= UI =================
-
     private void addTransactionView(String title, double amount, String date, boolean isIncome) {
-
         LinearLayout row = new LinearLayout(this);
         row.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-
         row.setOrientation(LinearLayout.VERTICAL);
         row.setPadding(0, 24, 0, 24);
 
@@ -357,21 +321,14 @@ public class DashboardActivity extends Activity {
 
         TextView tvTitle = new TextView(this);
         tvTitle.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1));
-
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         tvTitle.setText(title);
         tvTitle.setTextSize(18);
         tvTitle.setTextColor(Color.BLACK);
 
         TextView tvAmount = new TextView(this);
         tvAmount.setTextSize(18);
-
-        tvAmount.setTextColor(isIncome ?
-                Color.parseColor("#2E7D32") :
-                Color.parseColor("#E53935"));
-
+        tvAmount.setTextColor(isIncome ? Color.parseColor("#2E7D32") : Color.parseColor("#E53935"));
         tvAmount.setText((isIncome ? "+ Rs " : "- Rs ") + amount);
 
         rowTop.addView(tvTitle);
@@ -391,15 +348,12 @@ public class DashboardActivity extends Activity {
         divider.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 1));
         divider.setBackgroundColor(Color.parseColor("#D3D3D3"));
-
         transactionContainer.addView(divider);
     }
 
     @Override
     protected void onResume() {
-
         super.onResume();
-
         SyncManager.syncData(this);
         loadAllTransactions();
     }
