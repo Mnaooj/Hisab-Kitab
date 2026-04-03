@@ -15,12 +15,21 @@ import com.github.mikephil.charting.data.*;
 import com.github.mikephil.charting.components.XAxis;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
+import android.os.Environment;
+import android.widget.Toast;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.util.*;
 
 public class StatementActivity extends AppCompatActivity {
 
     LineChart lineChart;
+
     RecyclerView recycler;
 
     Spinner spinnerDate, spinnerCategory;
@@ -64,7 +73,8 @@ public class StatementActivity extends AppCompatActivity {
         recycler.setAdapter(adapter);
 
         setupSpinners();
-
+        Button btnExportPDF = findViewById(R.id.btnExportPDF);
+        btnExportPDF.setOnClickListener(v -> exportStatementAsPDF());
         loadGraph();
         loadRecentTransactions();
     }
@@ -122,6 +132,74 @@ public class StatementActivity extends AppCompatActivity {
         lineChart.setData(data);
         lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         lineChart.invalidate();
+    }
+
+    //export as pdf
+    private void exportStatementAsPDF() {
+        if (transactions.isEmpty()) {
+            Toast.makeText(this, "No transactions to export", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        PdfDocument pdfDocument = new PdfDocument();
+        Paint paint = new Paint();
+
+        int pageWidth = 595; // A4 width in points
+        int pageHeight = 842; // A4 height
+        int y = 50; // starting vertical position
+
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create();
+        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+        Canvas canvas = page.getCanvas();
+
+        paint.setTextSize(20f);
+        paint.setFakeBoldText(true);
+        canvas.drawText("Statement Report", 200, y, paint);
+        y += 40;
+
+        paint.setTextSize(14f);
+        paint.setFakeBoldText(false);
+
+        canvas.drawText("Date: " + new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date()), 20, y, paint);
+        y += 30;
+
+        canvas.drawText("Title           Category        Type       Amount", 20, y, paint);
+        y += 20;
+        canvas.drawLine(20, y, pageWidth - 20, y, paint);
+        y += 20;
+
+        for (TransactionItem item : transactions) {
+            if (y > pageHeight - 50) {
+                // create new page if content exceeds
+                pdfDocument.finishPage(page);
+                pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pdfDocument.getPages().size() + 1).create();
+                page = pdfDocument.startPage(pageInfo);
+                canvas = page.getCanvas();
+                y = 50;
+            }
+
+            String type = item.isIncome ? "Income" : "Expense";
+            String text = String.format(Locale.getDefault(), "%-15s %-12s %-8s Rs %.2f",
+                    item.title, item.category, type, item.amount);
+
+            canvas.drawText(text, 20, y, paint);
+            y += 20;
+        }
+
+        pdfDocument.finishPage(page);
+
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/StatementReport.pdf";
+
+        try {
+            File file = new File(path);
+            pdfDocument.writeTo(new FileOutputStream(file));
+            Toast.makeText(this, "PDF saved to Downloads/StatementReport.pdf", Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error saving PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } finally {
+            pdfDocument.close();
+        }
     }
 
     // Load recent transactions into RecyclerView

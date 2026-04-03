@@ -42,6 +42,19 @@
 
     </androidx.cardview.widget.CardView>
 
+    <!-- EXPORT PDF BUTTON -->
+    <Button
+        android:id="@+id/btnExportPDF"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Export Statement as PDF"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#2E7D32"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"/>
     <!-- Recent Transactions -->
     <TextView
         android:text="Recent Transactions"

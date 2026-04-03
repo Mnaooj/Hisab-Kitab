@@ -1,105 +1,62 @@
-# 🧾 HisabKitab – Personal Finance Manager
+# HisabKitab - Personal Finance Manager
 
-A **mobile Android app** to manage personal finance efficiently. Track **income, expenses**, and visualize **analytics** with predictions and insights.
-
----
-
-## 🌟 Features
-
-### Core Functionalities
-- Add **Expense** and **Income**
-- **Category selection** (with “Other” option)
-- **Date picker** with **future date restriction**
-- Offline-first database support with **Firebase sync**
-- **User authentication** via Firebase
-
-### Smart UX Enhancements
-- **Real-time form validation** for all input fields
-- **Currency formatting** (₹ / Rs) for amounts
-- Optional **description** with character limit
-- **Error handling** for invalid or missing inputs
-- Visual selection highlight for categories
-
-### Analytics & Insights
-- **Pie Chart**: Shows category-wise income or expense
-- **Bar Chart**: Monthly expense trends
-- **Prediction Algorithm**: Estimates next month’s spending based on average monthly expenses
-- **Insights Algorithm**: Finds top spending category and amount
+[![Android Build](https://img.shields.io/badge/Android-12-green)](https://developer.android.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20DB-orange)](https://firebase.google.com/)
 
 ---
 
-## ⚙️ Algorithms Used
+## Overview
 
-1. **Aggregation Algorithm (Pie Chart)**
-    - Groups expenses/incomes by category and sums amounts
-    - Input: All transactions of user
-    - Output: Pie chart entries per category
-
-2. **Monthly Summation (Bar Chart)**
-    - Groups expenses per month and sums totals per month
-    - Input: Date + amount
-    - Output: Bar chart showing monthly expense
-
-3. **Budget Prediction**
-    - Computes average monthly spending
-    - Formula: `prediction = totalAmount / totalMonths`
-
-4. **Top Category Insights**
-    - Finds maximum spending among categories
-    - Input: Category → amount map
-    - Output: Category with highest total spending
-
-5. **Real-time Validation Algorithm**
-    - Listens to text changes in input fields
-    - Validates amount > 0, title length >= 3, category not empty
-    - Updates UI error messages instantly
-
-6. **Currency Formatting Algorithm**
-    - Formats numbers as `Rs 1,000` dynamically while typing
-    - Uses `NumberFormat.getInstance(Locale("en","IN"))`
+**HisabKitab** is a modern personal finance manager Android application that helps users track **income and expenses**, visualize spending trends, predict future expenses, and gain smart insights. The app is designed with a **premium UI** and advanced analytics algorithms for **better financial planning**.
 
 ---
 
-## 💡 Smaller UX Features
-- Instant **error feedback**
-- Automatic **category field visibility** for "Other"
-- **Future dates blocked** in date picker
-- Max character limit for **description** (100)
-- Auto-sync with server when network is available
-- Simple offline-first **SQLite database** integration
+## Features
+
+### 💰 Core Features
+- Real-time **income and expense tracking**.
+- **Category-wise pie chart** for quick visualization.
+- **Monthly expense trend bar chart**.
+- **Dynamic toggle** to switch between income and expense views.
+- **Predicted next month expense** using trend algorithms.
+- **Smart insights** on highest spending categories.
+- **User authentication** using Firebase.
+- **Smooth, premium UI** with card layouts, rounded corners, and colored indicators.
+
+### ⚡ Smaller Features
+- Real-time **form validation**.
+- Rupees formatting for all currency fields.
+- Responsive UI with scrollable layouts.
+- Color-coded charts for better readability.
+- Elegant toggle indicators for Income/Expense.
+
+### 📊 Analytics & Algorithms
+- **Linear Regression** → predicts future expenses based on trends.
+- **Moving Average** → smooths monthly variations for better predictions.
+- **Category Aggregation** → finds highest spending category.
+- **Trend Analysis** → bar chart shows monthly expense growth.
+- **Combined Algorithm** → averages linear regression and moving average for accurate predictions.
+
+### 🚀 Future Improvements
+- Implement **Machine Learning models** for personalized budgeting.
+- Add **predictive AI insights** for saving tips.
+- Visualize **income vs. expense ratio** with interactive charts.
+- Export reports as **PDF or Excel**.
+- Push **notifications** for overspending alerts.
+- Multi-currency support for international users.
 
 ---
 
-## 🔮 Future Improvements / Algorithms
-- **Linear Regression / Moving Average** for better budget prediction
-- **Category-based trend prediction** for future spending
-- **Anomaly Detection** for unusual transactions
-- **Enhanced Data Visualization**
-    - Stacked bar charts for income vs expense
-    - Line chart with trendlines for prediction
-- **Expense Forecasting** using past 6–12 months data with ML
+## Screenshots
+
+![Pie Chart Example](screenshots/pie_chart.png)
+![Bar Chart Example](screenshots/bar_chart.png)
+![Prediction & Insights](screenshots/prediction_insights.png)
 
 ---
 
-## 📂 Tech Stack
-- **Language:** Java
-- **Database:** SQLite (Offline) + Firebase Firestore (Cloud sync)
-- **Authentication:** Firebase Auth
-- **Charts:** MPAndroidChart (PieChart & BarChart)
-- **UI:** Android XML, GridLayout for category selection
-- **Validation & Formatting:** TextWatcher & NumberFormat
+## Installation
 
----
-
-## 📝 How to Use
-1. Sign in with Firebase account.
-2. Add **Income** or **Expense**:
-    - Fill **amount, title, date, category**
-    - Optional description
-3. Analytics:
-    - View category-wise **Pie chart**
-    - View monthly **Bar chart**
-    - Check **prediction** & **top category insights**
-4. All data is synced when internet is available.
-
----
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/yourusername/HisabKitab.git
